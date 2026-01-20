@@ -12,52 +12,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-/*
- PROBAR CRUD citas
- chequear detelles de endpoints
- PROBAR LAS CORRECIONES DEL CRUD CITAS (PROBABLES FALLOS) <=====
-
-
- {
-    "cita": {
-        "id": 1,
-        "paciente_id": 18,
-        "paciente": {
-            "id": 0,
-            "nombre": "",
-            "apellido": "",
-            "dni": "",
-            "fecha_nacimiento": "",
-            "telefono": "",
-            "email": "",
-            "direccion": "",
-            "obra_social": "",
-            "doctor_id": 0,
-            "created_at": "0001-01-01T00:00:00Z",
-            "updated_at": "0001-01-01T00:00:00Z"
-        },
-        "doctor_id": 12,
-        "doctor": {
-            "id": 0,
-            "nombre": "",
-            "apellido": "",
-            "email": "",
-            "rol": "",
-            "created_at": "0001-01-01T00:00:00Z",
-            "updated_at": "0001-01-01T00:00:00Z"
-        },
-        "fecha": "2026-01-20T00:00:00Z",
-        "hora": "15:30",
-        "motivo": "Control general",
-        "estado": "pendiente",
-        "created_at": "0001-01-01T00:00:00Z",
-        "updated_at": "0001-01-01T00:00:00Z"
-    },
-    "mensaje": "Cita creada correctamente"
-}
-
-*/
-
 // ===(Opcional más adelante)===
 
 // Refresh tokens
