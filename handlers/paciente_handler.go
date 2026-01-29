@@ -2,7 +2,8 @@ package handlers
 
 import (
 	"adminApp/models"
-	"adminApp/repository"
+	"adminApp/services"
+	"adminApp/utils"
 	"net/http"
 	"strconv"
 
@@ -11,53 +12,23 @@ import (
 
 // POST /pacientes - crear
 func CrearPaciente(c *gin.Context) {
-	var nuevoPaciente models.Paciente
+	var paciente models.Paciente
 
-	if err := c.ShouldBindJSON(&nuevoPaciente); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Datos Invalidos",
-			"detalle": err.Error(),
-		})
+	if err := c.ShouldBindJSON(&paciente); err != nil {
+		utils.BadRequest(c, "Datos invalidos")
 		return
 	}
 
 	rol := c.GetString("rol")
 	userID := c.GetInt("user_id")
 
-	// Si es doctor → se asigna a sí mismo
-	if rol == "doctor" {
-		nuevoPaciente.DoctorID = userID
-	}
-
-	// Si es recepcion → debe venir doctor_id
-	if rol == "recepcion" && nuevoPaciente.DoctorID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "recepción debe asignar un doctor al paciente",
-		})
-		return
-	}
-
-	// // (Opcional) validar rol permitido
-	// if rol != "doctor" && rol != "recepcion" && rol != "admin" {
-	// 	c.JSON(http.StatusForbidden, gin.H{
-	// 		"error": "rol no autorizado",
-	// 	})
-	// 	return
-	// }
-
-	err := repository.CrearPaciente(&nuevoPaciente)
+	err := services.CrearPaciente(&paciente, rol, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error al registrar paciente",
-			"detalle": err.Error(),
-		})
+		utils.HandleServiceError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"mensaje":  "Paciente registrado",
-		"paciente": nuevoPaciente,
-	})
+	utils.Success(c, http.StatusOK, paciente, "Paciente registrado")
 }
 
 // GET Pacientes - listar pacientes
@@ -65,36 +36,23 @@ func ListarPacientes(c *gin.Context) {
 	rol := c.GetString("rol")
 	userID := c.GetInt("user_id")
 
-	var (
-		pacientes []models.Paciente
-		err       error
-	)
-
-	if rol == "doctor" {
-		pacientes, err = repository.ListarPacientesPorDoctor(userID)
-	} else {
-		pacientes, err = repository.ListarPacientes()
-	}
-
+	pacientes, err := services.ListarPacientes(rol, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error al listar pacientes",
-			"detalle": err.Error(),
-		})
+		utils.HandleServiceError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	utils.Success(c, http.StatusOK, gin.H{
 		"total":     len(pacientes),
 		"pacientes": pacientes,
-	})
+	}, "")
 }
 
 // GET /paciente/:id - Obtener por ID
 func ObtenerPacienteID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID invalido"})
+		utils.BadRequest(c, "ID invalido")
 		return
 	}
 
@@ -102,53 +60,26 @@ func ObtenerPacienteID(c *gin.Context) {
 	rol := c.GetString("rol")
 	userID := c.GetInt("user_id")
 
-	if rol == "doctor" {
-		ok, err := repository.PacientePerteneceADoctor(id, userID)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Error al validar permisos",
-			})
-			return
-		}
-		if !ok {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "No puede acceder a pacientes que no son suyos",
-			})
-			return
-		}
-	}
-
-	paciente, err := repository.ObtenerPacienteID(id)
+	paciente, err := services.ObtenerPacienteID(id, rol, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Error al obtener paciente",
-		})
-		return
-	}
-	if paciente == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Paciente no encontrado"})
+		utils.HandleServiceError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, paciente)
+	utils.Success(c, http.StatusOK, paciente, "")
 }
 
 // PUT /pacientes/:id - Actualizar
 func ActualizarPaciente(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "ID inválido",
-		})
+		utils.BadRequest(c, "ID invalido")
 		return
 	}
 
-	var datosActualizados models.Paciente
-	if err := c.ShouldBindJSON(&datosActualizados); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Datos inválidos",
-			"detalle": err.Error(),
-		})
+	var data models.Paciente
+	if err := c.ShouldBindJSON(&data); err != nil {
+		utils.BadRequest(c, "Datos invalidos")
 		return
 	}
 
@@ -156,90 +87,31 @@ func ActualizarPaciente(c *gin.Context) {
 	rol := c.GetString("rol")
 	userID := c.GetInt("user_id")
 
-	//validar si es doctor
-	if rol == "doctor" {
-		ok, err := repository.PacientePerteneceADoctor(id, userID)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Error al validar permisos",
-			})
-			return
-		} else if !ok {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "No puede modificar pacientes que no son suyos",
-			})
-			return
-		}
-	}
-
-	actualizado, err := repository.ActualizarPaciente(id, &datosActualizados)
+	err = services.ActualizarPaciente(id, &data, rol, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error al actualizar paciente",
-			"detalle": err.Error(),
-		})
+		utils.HandleServiceError(c, err)
 		return
 	}
 
-	if !actualizado {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Paciente no encontrado",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"mensaje": "Paciente actualizado correctamente",
-	})
+	utils.Success(c, http.StatusOK, nil, "Paciente actualizado correctamente")
 }
 
 // Eliminar Paciente
 func EliminarPaciente(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "ID inválido",
-		})
+		utils.BadRequest(c, "ID inválido")
 		return
 	}
-
-	//validar si es doctor
 
 	rol := c.GetString("rol")
 	userID := c.GetInt("user_id")
 
-	if rol == "doctor" {
-		ok, err := repository.PacientePerteneceADoctor(id, userID)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Error al validar permisos",
-			})
-			return
-		} else if !ok {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "No puede eliminar pacientes que no sean suyos",
-			})
-			return
-		}
-	}
-
-	eliminado, err := repository.EliminarPaciente(id)
+	err = services.EliminarPaciente(id, rol, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error al eliminar paciente",
-			"detalle": err.Error(),
-		})
+		utils.HandleServiceError(c, err)
 		return
 	}
 
-	if !eliminado {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Paciente no encontrado",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"mensaje": "Paciente eliminado correctamente",
-	})
+	utils.Success(c, http.StatusOK, nil, "Paciente eliminado correctamente")
 }

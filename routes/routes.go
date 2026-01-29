@@ -15,9 +15,10 @@ func SetupRoutes(r *gin.Engine) {
 	// ===== RUTAS PROTEGIDAS =====
 	api := r.Group("/api")
 	api.Use(middleware.RequiereAuth())
+	v1 := api.Group("/v1")
 
 	// ===== USUARIOS (solo ADMIN) =====
-	usuarios := api.Group("/usuarios")
+	usuarios := v1.Group("/usuarios")
 	usuarios.Use(middleware.RequiereRol("admin"))
 	{
 		usuarios.POST("/", handlers.CrearUsuario)
@@ -28,7 +29,7 @@ func SetupRoutes(r *gin.Engine) {
 	}
 
 	// ===== PACIENTES (ADMIN + RECEPCIÓN + DOCTOR) =====
-	pacientes := api.Group("/pacientes")
+	pacientes := v1.Group("/pacientes")
 	pacientes.Use(middleware.RequiereRol("admin", "recepcion", "doctor"))
 	{
 		pacientes.POST("/", handlers.CrearPaciente)
@@ -39,12 +40,12 @@ func SetupRoutes(r *gin.Engine) {
 	}
 
 	// ===== CITAS =====
-	citas := api.Group("/citas")
+	citas := v1.Group("/citas")
 	citas.Use(middleware.RequiereRol("admin", "recepcion", "doctor"))
 	{
 		citas.POST("/", handlers.CrearCita)
 		citas.GET("/", handlers.ObtenerCitas)
-		citas.GET("/:id", handlers.ObtenerCitaID)
+		citas.GET("/:id", handlers.ObtenerCitaPorID)
 		citas.PUT("/:id", handlers.ActualizarCita)
 		citas.DELETE("/:id", handlers.EliminarCita)
 	}
