@@ -1,9 +1,9 @@
 package seed
 
 import (
-	"adminApp/models"
-	"adminApp/repository"
-	"adminApp/utils"
+	"adminApp/internal/models"
+	"adminApp/internal/repository"
+	"adminApp/pkg/auth"
 	"log"
 	"os"
 )
@@ -31,7 +31,7 @@ func SeedAdminUser() {
 	}
 
 	//hash password
-	hash, err := utils.HashPassword(password)
+	hash, err := auth.HashPassword(password)
 	if err != nil {
 		log.Println("Error al hashear password", err)
 		return

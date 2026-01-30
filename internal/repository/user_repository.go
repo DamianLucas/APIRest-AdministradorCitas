@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"adminApp/database"
-	"adminApp/models"
+	"adminApp/internal/database"
+	"adminApp/internal/models"
 	"database/sql"
 )
 

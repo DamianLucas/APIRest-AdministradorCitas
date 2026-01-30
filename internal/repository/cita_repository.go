@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"adminApp/database"
-	"adminApp/dtos"
-	"adminApp/models"
+	"adminApp/internal/database"
+	"adminApp/internal/dtos"
+	"adminApp/internal/models"
 	"database/sql"
 	"time"
 )

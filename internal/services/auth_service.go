@@ -1,8 +1,9 @@
 package services
 
 import (
-	"adminApp/repository"
-	"adminApp/utils"
+	"adminApp/internal/repository"
+	"adminApp/pkg/apperrors"
+	"adminApp/pkg/auth"
 )
 
 type LoginResponse struct {
@@ -17,18 +18,18 @@ type LoginResponse struct {
 func Login(email string, password string) (*LoginResponse, error) {
 	usuario, err := repository.ObtenerUsuarioPorEmail(email)
 	if err != nil {
-		return nil, utils.NewInternal("error al verificar email")
+		return nil, apperrors.NewInternal("error al verificar email")
 	}
 	if usuario == nil {
-		return nil, utils.NewUnauthorized("credenciales invalidas")
+		return nil, apperrors.NewUnauthorized("credenciales invalidas")
 	}
-	if !utils.VerificarPassword(password, usuario.Password) {
-		return nil, utils.NewUnauthorized("credenciales inválidas")
+	if !auth.VerificarPassword(password, usuario.Password) {
+		return nil, apperrors.NewUnauthorized("credenciales inválidas")
 	}
 
-	token, err := utils.GenerarToken(usuario.ID, usuario.Rol)
+	token, err := auth.GenerarToken(usuario.ID, usuario.Rol)
 	if err != nil {
-		return nil, utils.NewInternal("error al generar token")
+		return nil, apperrors.NewInternal("error al generar token")
 	}
 
 	var resp LoginResponse

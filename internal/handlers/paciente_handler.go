@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"adminApp/models"
-	"adminApp/services"
-	"adminApp/utils"
+	"adminApp/internal/models"
+	"adminApp/internal/services"
+	"adminApp/pkg/apperrors"
+	"adminApp/pkg/response"
 	"net/http"
 	"strconv"
 
@@ -15,7 +16,7 @@ func CrearPaciente(c *gin.Context) {
 	var paciente models.Paciente
 
 	if err := c.ShouldBindJSON(&paciente); err != nil {
-		utils.BadRequest(c, "Datos invalidos")
+		response.BadRequest(c, "Datos invalidos")
 		return
 	}
 
@@ -24,11 +25,11 @@ func CrearPaciente(c *gin.Context) {
 
 	err := services.CrearPaciente(&paciente, rol, userID)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
 
-	utils.Success(c, http.StatusOK, paciente, "Paciente registrado")
+	response.Success(c, http.StatusOK, paciente, "Paciente registrado")
 }
 
 // GET Pacientes - listar pacientes
@@ -38,11 +39,11 @@ func ListarPacientes(c *gin.Context) {
 
 	pacientes, err := services.ListarPacientes(rol, userID)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
 
-	utils.Success(c, http.StatusOK, gin.H{
+	response.Success(c, http.StatusOK, gin.H{
 		"total":     len(pacientes),
 		"pacientes": pacientes,
 	}, "")
@@ -52,7 +53,7 @@ func ListarPacientes(c *gin.Context) {
 func ObtenerPacienteID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		utils.BadRequest(c, "ID invalido")
+		response.BadRequest(c, "ID invalido")
 		return
 	}
 
@@ -62,24 +63,24 @@ func ObtenerPacienteID(c *gin.Context) {
 
 	paciente, err := services.ObtenerPacienteID(id, rol, userID)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
 
-	utils.Success(c, http.StatusOK, paciente, "")
+	response.Success(c, http.StatusOK, paciente, "")
 }
 
 // PUT /pacientes/:id - Actualizar
 func ActualizarPaciente(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		utils.BadRequest(c, "ID invalido")
+		response.BadRequest(c, "ID invalido")
 		return
 	}
 
 	var data models.Paciente
 	if err := c.ShouldBindJSON(&data); err != nil {
-		utils.BadRequest(c, "Datos invalidos")
+		response.BadRequest(c, "Datos invalidos")
 		return
 	}
 
@@ -89,18 +90,18 @@ func ActualizarPaciente(c *gin.Context) {
 
 	err = services.ActualizarPaciente(id, &data, rol, userID)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
 
-	utils.Success(c, http.StatusOK, nil, "Paciente actualizado correctamente")
+	response.Success(c, http.StatusOK, nil, "Paciente actualizado correctamente")
 }
 
 // Eliminar Paciente
 func EliminarPaciente(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		utils.BadRequest(c, "ID inválido")
+		response.BadRequest(c, "ID inválido")
 		return
 	}
 
@@ -109,9 +110,9 @@ func EliminarPaciente(c *gin.Context) {
 
 	err = services.EliminarPaciente(id, rol, userID)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
 
-	utils.Success(c, http.StatusOK, nil, "Paciente eliminado correctamente")
+	response.Success(c, http.StatusOK, nil, "Paciente eliminado correctamente")
 }

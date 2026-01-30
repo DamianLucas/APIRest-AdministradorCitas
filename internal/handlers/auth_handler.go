@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"adminApp/services"
-	"adminApp/utils"
+	"adminApp/internal/services"
+	"adminApp/pkg/apperrors"
+	"adminApp/pkg/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,15 +18,15 @@ func Login(c *gin.Context) {
 	var req loginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "datos inválidos")
+		response.BadRequest(c, "datos inválidos")
 		return
 	}
 
 	resp, err := services.Login(req.Email, req.Password)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
 
-	utils.Success(c, http.StatusOK, resp, "")
+	response.Success(c, http.StatusOK, resp, "")
 }

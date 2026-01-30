@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"adminApp/dtos"
-	"adminApp/services"
-	"adminApp/utils"
+	"adminApp/internal/dtos"
+	"adminApp/internal/services"
+	"adminApp/pkg/apperrors"
+	"adminApp/pkg/response"
 	"net/http"
 	"strconv"
 
@@ -15,7 +16,7 @@ func CrearCita(c *gin.Context) {
 	var req dtos.CrearCitaRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "Datos invalidos")
+		response.BadRequest(c, "Datos invalidos")
 		return
 	}
 
@@ -25,11 +26,11 @@ func CrearCita(c *gin.Context) {
 
 	err := services.CrearCita(&req, rol, userID)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
 
-	utils.Success(c, http.StatusCreated, nil, "Cita creada correctamente")
+	response.Success(c, http.StatusCreated, nil, "Cita creada correctamente")
 }
 
 // GET/Mostrar Citas
@@ -39,11 +40,11 @@ func ObtenerCitas(c *gin.Context) {
 
 	citas, err := services.ObtenerCitas(rol, userID)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
 
-	utils.Success(c, http.StatusOK, gin.H{
+	response.Success(c, http.StatusOK, gin.H{
 		"total": len(citas),
 		"citas": citas,
 	}, "")
@@ -53,7 +54,7 @@ func ObtenerCitas(c *gin.Context) {
 func ObtenerCitaPorID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		utils.BadRequest(c, "ID invalido")
+		response.BadRequest(c, "ID invalido")
 		return
 	}
 
@@ -62,23 +63,23 @@ func ObtenerCitaPorID(c *gin.Context) {
 
 	cita, err := services.ObtenerCitaPorID(id, rol, userID)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
-	utils.Success(c, http.StatusOK, cita, "")
+	response.Success(c, http.StatusOK, cita, "")
 }
 
 // actualizar cita
 func ActualizarCita(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		utils.BadRequest(c, "ID invalido")
+		response.BadRequest(c, "ID invalido")
 		return
 	}
 
 	var req dtos.ActualizarCitaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "Datos invalidos")
+		response.BadRequest(c, "Datos invalidos")
 		return
 	}
 
@@ -87,11 +88,11 @@ func ActualizarCita(c *gin.Context) {
 
 	err = services.ActualizarCita(id, &req, rol, userID)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
 
-	utils.Success(c, http.StatusOK, nil, "Cita actualizada correctamente")
+	response.Success(c, http.StatusOK, nil, "Cita actualizada correctamente")
 }
 
 // borrar cita
@@ -108,9 +109,9 @@ func EliminarCita(c *gin.Context) {
 
 	err = services.EliminarCita(id, rol, userID)
 	if err != nil {
-		utils.HandleServiceError(c, err)
+		apperrors.HandleServiceError(c, err)
 		return
 	}
 
-	utils.Success(c, http.StatusOK, nil, "Cita eliminada correctamente")
+	response.Success(c, http.StatusOK, nil, "Cita eliminada correctamente")
 }

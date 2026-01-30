@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"adminApp/handlers"
-	"adminApp/middleware"
+	"adminApp/internal/handlers"
+	"adminApp/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )

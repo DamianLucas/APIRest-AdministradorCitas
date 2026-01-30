@@ -1,9 +1,9 @@
 package main
 
 import (
-	"adminApp/database"
-	"adminApp/routes"
-	"adminApp/seed"
+	"adminApp/internal/database"
+	"adminApp/internal/routes"
+	"adminApp/internal/seed"
 	"fmt"
 	"log"
 	"os"

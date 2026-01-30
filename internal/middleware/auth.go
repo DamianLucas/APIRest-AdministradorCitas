@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"adminApp/utils"
+	"adminApp/pkg/auth"
 	"net/http"
 	"strings"
 
@@ -34,7 +34,7 @@ func RequiereAuth() gin.HandlerFunc {
 
 		tokenString := parts[1]
 		//validar token
-		claims, err := utils.ValidarToken(tokenString)
+		claims, err := auth.ValidarToken(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "Token invalido o expirado",

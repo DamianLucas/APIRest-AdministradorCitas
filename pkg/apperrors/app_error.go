@@ -1,4 +1,4 @@
-package utils
+package apperrors
 
 type AppError struct {
 	Status  int
