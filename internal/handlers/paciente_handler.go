@@ -16,7 +16,7 @@ func CrearPaciente(c *gin.Context) {
 	var paciente models.Paciente
 
 	if err := c.ShouldBindJSON(&paciente); err != nil {
-		response.BadRequest(c, "Datos invalidos")
+		response.BadRequest(c, err.Error())
 		return
 	}
 
@@ -80,7 +80,7 @@ func ActualizarPaciente(c *gin.Context) {
 
 	var data models.Paciente
 	if err := c.ShouldBindJSON(&data); err != nil {
-		response.BadRequest(c, "Datos invalidos")
+		response.BadRequest(c, err.Error())
 		return
 	}
 

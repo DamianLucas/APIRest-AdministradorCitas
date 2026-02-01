@@ -261,10 +261,11 @@ func ObtenerCitasPorDoctor(doctorID int) ([]dtos.CitaResponse, error) {
 
 	for rows.Next() {
 		var c dtos.CitaResponse
+		var fecha time.Time
 
 		err := rows.Scan(
 			&c.ID,
-			&c.Fecha,
+			&fecha,
 			&c.Hora,
 			&c.Motivo,
 			&c.Estado,
@@ -278,6 +279,7 @@ func ObtenerCitasPorDoctor(doctorID int) ([]dtos.CitaResponse, error) {
 		if err != nil {
 			return nil, err
 		}
+		c.Fecha = fecha.Format("2006-01-02")
 
 		citas = append(citas, c)
 	}

@@ -40,7 +40,7 @@ func main() {
 	// Leer puerto del .env
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
-		port = "SERVER_PORT"
+		port = "8080"
 	}
 
 	// Iniciar servidor

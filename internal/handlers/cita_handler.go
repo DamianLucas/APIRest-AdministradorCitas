@@ -16,11 +16,11 @@ func CrearCita(c *gin.Context) {
 	var req dtos.CrearCitaRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "Datos invalidos")
+		response.BadRequest(c, err.Error())
 		return
 	}
 
-	//Verifiacar rol
+	//Verificar rol
 	rol := c.GetString("rol")
 	userID := c.GetInt("user_id")
 
@@ -79,7 +79,7 @@ func ActualizarCita(c *gin.Context) {
 
 	var req dtos.ActualizarCitaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "Datos invalidos")
+		response.BadRequest(c, err.Error())
 		return
 	}
 

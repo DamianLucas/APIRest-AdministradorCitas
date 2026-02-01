@@ -18,7 +18,7 @@ func Login(c *gin.Context) {
 	var req loginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "datos inválidos")
+		response.BadRequest(c, err.Error())
 		return
 	}
 

@@ -17,7 +17,7 @@ func CrearUsuario(c *gin.Context) {
 	var newUser models.User
 
 	if err := c.ShouldBindJSON(&newUser); err != nil {
-		response.BadRequest(c, "Datos invalidos")
+		response.BadRequest(c, err.Error())
 		return
 	}
 
@@ -70,7 +70,7 @@ func ActualizarUsuario(c *gin.Context) {
 
 	var datos models.User
 	if err := c.ShouldBindJSON(&datos); err != nil {
-		response.BadRequest(c, "datos inválidos")
+		response.BadRequest(c, err.Error())
 		return
 	}
 	err = services.ActualizarUsuario(id, &datos)

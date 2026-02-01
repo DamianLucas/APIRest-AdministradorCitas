@@ -111,7 +111,7 @@ func ActualizarCita(id int, req *dtos.ActualizarCitaRequest, rol string, userID 
 		return apperrors.NewInternal("error al obtener cita")
 	}
 	if citaActual == nil {
-		apperrors.NewNotFound("Cita no encontrada")
+		return apperrors.NewNotFound("Cita no encontrada")
 	}
 
 	//Aplicar patch parcial (solo campos enviados)
